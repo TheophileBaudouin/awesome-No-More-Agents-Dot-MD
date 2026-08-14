@@ -169,32 +169,52 @@ body {
 	border-color: hsl(var(--border));
 }
 
-/* Black button (like .btn) whose label carries the blue-to-pink gradient.
- * The gradient is clipped to the text via background-clip; the black fill
- * lives on a ::before layer so it is not clipped away. Falls back to a
- * solid light label where background-clip is unsupported (mdn/content#2638). */
+/* Black button whose label carries the blue-to-pink gradient. The gradient
+ * lives on a ::after layer painted from data-label, above the button's own
+ * black background. It cannot sit on the element's background: painting
+ * order puts any child above the element's background layer (the gradient
+ * would be hidden), and background-clip: text would clip a background-color
+ * away. Falls back to a solid light label where background-clip is
+ * unsupported (mdn/content#2638). */
 .btn-gradient-text {
 	position: relative;
-	z-index: 0;
-	background: transparent;
-	color: hsl(var(--accent-foreground));
-}
-
-.btn-gradient-text::before {
-	content: "";
-	position: absolute;
-	inset: 0;
-	z-index: -1;
-	border-radius: var(--radius);
 	background: hsl(var(--accent));
+	color: hsl(var(--accent-foreground));
 }
 
 @supports ((background-clip: text) or (-webkit-background-clip: text)) {
 	.btn-gradient-text {
+		color: transparent;
+	}
+
+	.btn-gradient-text::after {
+		content: attr(data-label);
+		position: absolute;
+		inset: 0;
+		display: grid;
+		place-items: center;
+		border-radius: var(--radius);
 		background-image: linear-gradient(90deg, #007aff, #af52de 50%, #ff2d55);
+		background-size: 200% 100%;
 		-webkit-background-clip: text;
 		background-clip: text;
 		color: transparent;
+		animation: gradient-slide 20s ease-in-out infinite alternate;
+	}
+}
+
+@keyframes gradient-slide {
+	from {
+		background-position: 0% 50%;
+	}
+	to {
+		background-position: 100% 50%;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.btn-gradient-text::after {
+		animation: none;
 	}
 }
 
