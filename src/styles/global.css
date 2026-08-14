@@ -169,25 +169,31 @@ body {
 	border-color: hsl(var(--border));
 }
 
-/* Black button whose label carries the blue-to-pink gradient. The gradient
- * lives on a ::after layer painted from data-label, above the button's own
- * black background. It cannot sit on the element's background: painting
- * order puts any child above the element's background layer (the gradient
- * would be hidden), and background-clip: text would clip a background-color
- * away. Falls back to a solid light label where background-clip is
- * unsupported (mdn/content#2638). */
+/* Black button with a white label. On hover it turns white and the label
+ * picks up the blue-to-pink gradient with a very slow drift. The gradient
+ * lives on a :hover::after overlay painted from data-label, above the
+ * button's own background: it cannot sit on the element's background layer
+ * (painting order puts children above it, and background-clip: text would
+ * clip a background-color away). Falls back to a solid dark label on hover
+ * where background-clip is unsupported (mdn/content#2638). */
 .btn-gradient-text {
 	position: relative;
 	background: hsl(var(--accent));
 	color: hsl(var(--accent-foreground));
+	transition: background-color 0.25s ease;
+}
+
+.btn-gradient-text:hover {
+	background: #fff;
+	color: #111;
 }
 
 @supports ((background-clip: text) or (-webkit-background-clip: text)) {
-	.btn-gradient-text {
+	.btn-gradient-text:hover {
 		color: transparent;
 	}
 
-	.btn-gradient-text::after {
+	.btn-gradient-text:hover::after {
 		content: attr(data-label);
 		position: absolute;
 		inset: 0;
@@ -213,7 +219,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.btn-gradient-text::after {
+	.btn-gradient-text:hover::after {
 		animation: none;
 	}
 }
