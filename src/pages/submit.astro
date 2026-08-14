@@ -4,6 +4,7 @@ import { siteConfig } from "../site-config";
 
 const base = import.meta.env.BASE_URL;
 const formUrl = `${siteConfig.repoUrl}/issues/new?template=submit`;
+const guideUrl = `${siteConfig.repoUrl}/blob/main/CONTRIBUTING.md`;
 ---
 
 <BaseLayout
@@ -11,44 +12,66 @@ const formUrl = `${siteConfig.repoUrl}/issues/new?template=submit`;
   description="How to share a Pi context file with the community registry."
 >
   <section class="container submit-page">
-    <nav class="breadcrumb">
-      <a href={base}>Registry</a>
-      <span>/</span>
-      <span>Submit</span>
-    </nav>
+    <div class="submit-inner">
+      <nav class="breadcrumb">
+        <a href={base}>Registry</a>
+        <span>/</span>
+        <span>Submit</span>
+      </nav>
 
-    <h1>Submit a context file</h1>
-    <p class="lead">
-      Sharing a <code>.pi/context/</code> file takes 4 steps. No Git, no
-      forks — a bot opens the pull request for you.
-    </p>
+      <h1>Submit a context file</h1>
+      <p class="lead">
+        Share a <code>.pi/context/</code> file with the community — 4 steps,
+        no Git.
+      </p>
 
-    <ol class="steps">
-      <li>
-        <strong>Open the form</strong> — the button below, one click.
-      </li>
-      <li>
-        <strong>Name your file</strong> — kebab-case, e.g.
-        <code>conventional-commits</code>. Pick a category.
-      </li>
-      <li>
-        <strong>Paste your file</strong> — the whole thing, frontmatter
-        included.
-      </li>
-      <li>
-        <strong>Submit</strong> — a bot validates it, opens a pull request, a
-        maintainer merges. Done.
-      </li>
-    </ol>
+      <ol class="steps-card">
+        <li>
+          <span class="step-num" aria-hidden="true">1</span>
+          <div>
+            <strong>Open the form</strong>
+            <p>One click, right below.</p>
+          </div>
+        </li>
+        <li>
+          <span class="step-num" aria-hidden="true">2</span>
+          <div>
+            <strong>Name it</strong>
+            <p>
+              Kebab-case, like <code>conventional-commits</code> — and pick a
+              category.
+            </p>
+          </div>
+        </li>
+        <li>
+          <span class="step-num" aria-hidden="true">3</span>
+          <div>
+            <strong>Paste your file</strong>
+            <p>
+              The whole context file, frontmatter included.
+            </p>
+          </div>
+        </li>
+        <li>
+          <span class="step-num" aria-hidden="true">4</span>
+          <div>
+            <strong>Submit</strong>
+            <p>
+              A bot validates it and opens a pull request; a maintainer
+              reviews and merges.
+            </p>
+          </div>
+        </li>
+      </ol>
 
-    <div class="submit-cta">
-      <a class="btn btn-gradient" href={formUrl}>Open the form</a>
-      <a
-        class="btn btn-outline"
-        href={`${siteConfig.repoUrl}/blob/main/CONTRIBUTING.md`}
-      >
-        Full guide
-      </a>
+      <p class="submit-note">
+        You need a GitHub account. That&apos;s the only requirement.
+      </p>
+
+      <div class="submit-cta">
+        <a class="btn btn-gradient-text" href={formUrl}>Open the form</a>
+        <a class="btn btn-outline" href={guideUrl}>Full guide</a>
+      </div>
     </div>
   </section>
 </BaseLayout>

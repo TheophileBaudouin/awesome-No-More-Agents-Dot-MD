@@ -169,14 +169,31 @@ body {
 	border-color: hsl(var(--border));
 }
 
-.btn-gradient {
-	background: linear-gradient(90deg, #007aff, #af52de 50%, #ff2d55);
-	color: #fff;
-	border-color: transparent;
-	text-shadow: 0 1px 2px rgb(0 0 0 / 0.15);
+/* Gradient text on a plain outline button. Fallback: solid foreground
+ * color, so text stays readable where background-clip is unsupported
+ * (see mdn/content#2638 — never rely on color: transparent alone). */
+.btn-gradient-text {
+	color: hsl(var(--foreground));
+	background: transparent;
+	border-color: hsl(var(--border));
+}
+
+@supports ((background-clip: text) or (-webkit-background-clip: text)) {
+	.btn-gradient-text {
+		background-image: linear-gradient(90deg, #007aff, #af52de 50%, #ff2d55);
+		-webkit-background-clip: text;
+		background-clip: text;
+		color: transparent;
+	}
 }
 
 /* ---------- Submit page ---------- */
+
+.submit-inner {
+	max-width: 640px;
+	margin: 0 auto;
+	padding-bottom: 1rem;
+}
 
 .submit-page h1 {
 	font-size: clamp(1.6rem, 3.5vw, 2.2rem);
@@ -184,38 +201,59 @@ body {
 	margin: 0 0 0.5rem;
 }
 
-.steps {
+.submit-page .lead {
+	margin-bottom: 1.75rem;
+}
+
+.steps-card {
 	list-style: none;
-	counter-reset: step;
-	margin: 0 0 2rem;
-	padding: 0;
-	max-width: 560px;
+	margin: 0 0 1.25rem;
+	padding: 0.35rem 1.25rem;
+	border: 1px solid hsl(var(--border));
+	border-radius: var(--radius);
+	background: hsl(var(--card));
 }
 
-.steps li {
-	counter-increment: step;
+.steps-card li {
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	gap: 1rem;
-	padding: 0.9rem 0;
-	border-bottom: 1px solid hsl(var(--border));
+	padding: 1rem 0;
 }
 
-.steps li:last-child {
-	border-bottom: 0;
+.steps-card li + li {
+	border-top: 1px solid hsl(var(--border));
 }
 
-.steps li::before {
-	content: counter(step);
+.step-num {
 	flex: none;
-	width: 1.8rem;
-	height: 1.8rem;
+	width: 1.9rem;
+	height: 1.9rem;
+	margin-top: 0.1rem;
 	display: grid;
 	place-items: center;
-	border: 1px solid hsl(var(--border));
 	border-radius: 50%;
-	font-size: 0.85rem;
+	background: hsl(var(--muted));
+	color: hsl(var(--muted-foreground));
+	font-size: 0.8rem;
 	font-weight: 600;
+}
+
+.steps-card strong {
+	display: block;
+	font-size: 0.95rem;
+}
+
+.steps-card p {
+	margin: 0.15rem 0 0;
+	color: hsl(var(--muted-foreground));
+	font-size: 0.9rem;
+}
+
+.submit-note {
+	color: hsl(var(--muted-foreground));
+	font-size: 0.85rem;
+	margin: 0 0 1.5rem;
 }
 
 .submit-cta {
