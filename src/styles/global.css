@@ -135,7 +135,7 @@ body {
   color: hsl(var(--muted-foreground));
 }
 
-.hero a {
+.hero p a {
   color: hsl(var(--foreground));
 }
 
