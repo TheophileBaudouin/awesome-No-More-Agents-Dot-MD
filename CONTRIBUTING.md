@@ -6,7 +6,7 @@ submissions: read it before opening a pull request.
 ## Submission process
 
 **Option A: web form (recommended).** No fork or clone needed: open the
-[“Submit a context file” issue form](https://github.com/TheophileBaudouin/awesome-No-More-Agents-Dot-MD/issues/new?template=submit),
+[“Submit a context file” issue form](https://github.com/TheophileBaudouin/awesome-No-More-Agents-Dot-MD/issues/new?template=submit.yml),
 fill it in (the fields mirror `metadata.yml`, plus the content of
 `context.md`), and submit. A bot validates the submission, creates
 `registry/<name>/` and opens a pull request. A maintainer then reviews and
