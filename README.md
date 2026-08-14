@@ -1,7 +1,7 @@
 # Awesome No-More-Agents-Dot-MD
 
 A community registry of **Pi context files** for the
-[No More Agents .MD](https://github.com/TheophileBaudouin/No-More-Agents-Dot-MD)
+[No More Agents Dot MD](https://github.com/TheophileBaudouin/No-More-Agents-Dot-MD)
 extension.
 
 The extension replaces the monolithic `AGENTS.md` with declarative, unit-sized
