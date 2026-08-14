@@ -5,20 +5,20 @@ submissions: read it before opening a pull request.
 
 ## Submission process
 
-**Option A — web form (recommended).** No fork or clone needed: open the
+**Option A: web form (recommended).** No fork or clone needed: open the
 [“Submit a context file” issue form](https://github.com/TheophileBaudouin/awesome-No-More-Agents-Dot-MD/issues/new?template=submit),
 fill it in (the fields mirror `metadata.yml`, plus the content of
 `context.md`), and submit. A bot validates the submission, creates
 `registry/<name>/` and opens a pull request. A maintainer then reviews and
 merges.
 
-**Option B — manual pull request.**
+**Option B: manual pull request.**
 
 1. **Fork** this repository.
 2. **Create a branch** (`git checkout -b registry/my-context-file`).
 3. **Add a directory** `registry/<name>/` containing exactly two files:
-   - `context.md` — the context file itself (see [context.md](#contextmd));
-   - `metadata.yml` — registry metadata (see [metadata.yml](#metadatayml)).
+   - `context.md`, the context file itself (see [context.md](#contextmd));
+   - `metadata.yml`, registry metadata (see [metadata.yml](#metadatayml)).
 4. **Open a pull request** against `main`.
 5. **Wait for the automated validation** to pass. A maintainer then reviews
    and merges (or requests changes).
@@ -107,7 +107,7 @@ min_pi_version: 0.1.0                              # optional
 | `min_pi_version` | no | string | Minimum extension version required (e.g. `0.1.0`) |
 
 Unknown keys are tolerated (they do not fail validation) but should be
-avoided — the site does not render them.
+avoided, the site does not render them.
 
 ## What CI checks
 
@@ -127,7 +127,7 @@ registry is invalid, so `main` is always in a buildable state.
 
 Submissions coming through the web form are validated by the
 [`Submission bot`](.github/workflows/submit.yml) workflow with the same
-checks, *before* a pull request is opened — the PR it creates is already
+checks, *before* a pull request is opened, the PR it creates is already
 validated.
 
 ## Review and moderation

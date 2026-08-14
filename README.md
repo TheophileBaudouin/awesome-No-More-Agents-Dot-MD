@@ -14,9 +14,9 @@ publish one via a pull request, and the site is generated automatically from
 
 ## How it works
 
-- **Submissions live in `registry/`** — one directory per context file:
+- **Submissions live in `registry/`**, one directory per context file:
   `registry/<name>/context.md` + `registry/<name>/metadata.yml`.
-- **Submitting is a web form** — start at the
+- **Submitting is a web form**, start at the
   [Submit page](https://theophilebaudouin.github.io/awesome-No-More-Agents-Dot-MD/submit/):
   4 short steps, then a bot opens the validated pull request for you. No
   fork or clone needed.
@@ -28,7 +28,7 @@ publish one via a pull request, and the site is generated automatically from
   [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
 - **Comments and reactions** on each page are powered by
   [giscus](https://giscus.app/), backed by GitHub Discussions. Reactions
-  (👍/👎) serve as a popularity proxy — there is no 5-star rating system.
+  (👍/👎) serve as a popularity proxy, there is no 5-star rating system.
 
 ## Structure
 
@@ -38,7 +38,7 @@ registry/                     # Community submissions (one dir per context file)
     context.md                # The context file itself (extension schema)
     metadata.yml              # Registry metadata (author, category, tags, …)
 src/                          # Astro site (index, rule pages, styles)
-scripts/validate.ts           # Registry validator — used by CI and the build
+scripts/validate.ts           # Registry validator, used by CI and the build
 scripts/submit.ts             # Web-form submission bot (issue → registry files)
 .github/ISSUE_TEMPLATE/       # “Submit a context file” issue form
 .github/workflows/            # validate.yml (PRs) + deploy.yml (Pages) + submit.yml (bot)
@@ -46,7 +46,7 @@ scripts/submit.ts             # Web-form submission bot (issue → registry file
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) — it documents the submission process,
+See [CONTRIBUTING.md](CONTRIBUTING.md), it documents the submission process,
 the `context.md` schema, the `metadata.yml` fields and the review rules.
 
 ## Local development
@@ -64,5 +64,5 @@ be enabled with **Deploy from a branch → GitHub Actions** as the source
 
 ## License
 
-MIT — see [LICENSE](LICENSE). By submitting a context file via pull request,
+MIT, see [LICENSE](LICENSE). By submitting a context file via pull request,
 you agree to publish it under the MIT license.

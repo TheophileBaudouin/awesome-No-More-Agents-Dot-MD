@@ -1,6 +1,6 @@
 name: Submit a context file
 description: >-
-  Share a Pi context file with the community registry — a bot validates it
+  Share a Pi context file with the community registry, a bot validates it
   and opens a pull request for you.
 title: "New context file: "
 labels: ["submission"]
@@ -8,7 +8,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thanks for sharing! Fill in the form below — no need to fork or clone.
+        Thanks for sharing! Fill in the form below, no need to fork or clone.
         A bot will validate your submission and open a pull request that a
         maintainer will review and merge.
 

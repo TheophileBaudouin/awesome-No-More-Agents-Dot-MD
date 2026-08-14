@@ -1,7 +1,7 @@
 /**
  * Shared registry logic: loads, parses and validates every submission in
  * `registry/`. Used by both the Astro content collection (site build) and the
- * CI validation script — one source of truth, no duplication.
+ * CI validation script, one source of truth, no duplication.
  *
  * The `context.md` validation mirrors the extension's own loader
  * (No-More-Agents-Dot-MD, `.pi/extensions/context-engine/engine.ts`):
@@ -86,7 +86,7 @@ export interface RegistryMetadata {
 }
 
 export interface RegistryEntry {
-  /** Directory name inside `registry/` — must equal `rule.name`. */
+  /** Directory name inside `registry/`, must equal `rule.name`. */
   id: string;
   rule: Rule;
   metadata: RegistryMetadata;

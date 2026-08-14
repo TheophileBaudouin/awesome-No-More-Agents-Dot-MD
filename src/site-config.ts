@@ -1,5 +1,5 @@
 export const siteConfig = {
-	title: "No More Agents Dot MD — Community Registry",
+	title: "No More Agents Dot MD · Community Registry",
 	description:
 		"A community registry of declarative Pi context files, ready to drop into .pi/context/.",
 	repoUrl: "https://github.com/TheophileBaudouin/awesome-No-More-Agents-Dot-MD",
