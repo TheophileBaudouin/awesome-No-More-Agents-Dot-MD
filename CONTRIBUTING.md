@@ -5,6 +5,15 @@ submissions: read it before opening a pull request.
 
 ## Submission process
 
+**Option A — web form (recommended).** No fork or clone needed: open the
+[“Submit a context file” issue form](https://github.com/TheophileBaudouin/awesome-No-More-Agents-Dot-MD/issues/new?template=submit),
+fill it in (the fields mirror `metadata.yml`, plus the content of
+`context.md`), and submit. A bot validates the submission, creates
+`registry/<name>/` and opens a pull request. A maintainer then reviews and
+merges.
+
+**Option B — manual pull request.**
+
 1. **Fork** this repository.
 2. **Create a branch** (`git checkout -b registry/my-context-file`).
 3. **Add a directory** `registry/<name>/` containing exactly two files:
@@ -14,8 +23,8 @@ submissions: read it before opening a pull request.
 5. **Wait for the automated validation** to pass. A maintainer then reviews
    and merges (or requests changes).
 
-There is no web submission form: the Git/PR workflow is the only submission
-path, by design.
+Both paths run the exact same validation. The web form is the fastest route;
+the manual PR remains available for bulk or scripted submissions.
 
 ## Naming conventions
 
@@ -115,6 +124,11 @@ Every pull request touching `registry/` runs
 
 The same checks run again at build time: the site deployment fails if the
 registry is invalid, so `main` is always in a buildable state.
+
+Submissions coming through the web form are validated by the
+[`Submission bot`](.github/workflows/submit.yml) workflow with the same
+checks, *before* a pull request is opened — the PR it creates is already
+validated.
 
 ## Review and moderation
 

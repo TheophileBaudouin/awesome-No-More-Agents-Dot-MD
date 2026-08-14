@@ -1,0 +1,27 @@
+### Directory name
+
+my-invalid-rule
+
+### Author (GitHub handle)
+
+octocat
+
+### Category
+
+workflow
+
+### Tags (comma-separated, optional)
+
+### Source repository (optional)
+
+### Minimum Pi version (optional)
+
+### The context file
+
+---
+name: my-invalid-rule
+events:
+  - this_event_does_not_exist
+action:
+  type: inject
+---

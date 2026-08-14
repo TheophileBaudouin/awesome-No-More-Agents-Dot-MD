@@ -1,0 +1,57 @@
+name: Submission bot
+
+# Turns a filled "Submit a context file" issue into registry files and opens
+# a pull request. Validation runs here (the same loadRegistry as CI) because
+# a PR opened with GITHUB_TOKEN does not trigger the pull_request workflows.
+# Merging stays a maintainer decision: the PR is a proposal, nothing lands
+# without review.
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  create-pull-request:
+    if: contains(github.event.issue.labels.*.name, 'submission')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Convert issue to registry files
+        id: convert
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: npx tsx scripts/submit.ts
+      - name: Open a pull request
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NAME: ${{ steps.convert.outputs.name }}
+          ISSUE: ${{ github.event.issue.number }}
+          EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "$EMAIL"
+          BRANCH="submission/$NAME-$ISSUE"
+          git checkout -b "$BRANCH"
+          git add registry/
+          git commit -m "Add context file: $NAME"
+          git push -u origin "$BRANCH"
+          gh pr create --base main \
+            --title "Add context file: $NAME" \
+            --body "Closes #$ISSUE. Validated by the submission workflow."
+      - name: Comment on invalid submission
+        if: ${{ failure() && steps.convert.outcome == 'failure' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: gh issue comment "$ISSUE_NUMBER" --body-file .submission.md

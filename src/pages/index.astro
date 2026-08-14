@@ -42,11 +42,14 @@ const countByCategory = (category: string) =>
         Let&apos;s build a better context and more robust agents — together.
       </p>
       <div class="hero-actions">
-        <a class="btn" href={`${siteConfig.repoUrl}/blob/main/CONTRIBUTING.md`}>
+        <a class="btn" href={`${siteConfig.repoUrl}/issues/new?template=submit`}>
           Submit a context file
         </a>
-        <a class="btn btn-outline" href={siteConfig.repoUrl}>
-          View the registry
+        <a
+          class="btn btn-outline"
+          href={`${siteConfig.repoUrl}/blob/main/CONTRIBUTING.md`}
+        >
+          Contribution guide
         </a>
       </div>
     </div>

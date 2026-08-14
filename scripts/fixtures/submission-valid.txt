@@ -1,0 +1,39 @@
+### Directory name
+
+commit-style
+
+### Author (GitHub handle)
+
+octocat
+
+### Category
+
+workflow
+
+### Tags (comma-separated, optional)
+
+git, commits, style
+
+### Source repository (optional)
+
+https://github.com/octocat/my-dotfiles
+
+### Minimum Pi version (optional)
+
+0.1.0
+
+### The context file
+
+---
+name: commit-style
+description: Enforce the Conventional Commits format.
+events:
+  - before_agent_start
+action:
+  type: inject
+priority: high
+---
+
+When the user asks for a commit message, follow the Conventional Commits spec.
+
+Format: `<type>[optional scope]: <description>`
