@@ -10,13 +10,12 @@ export const siteConfig = {
     "https://github.com/TheophileBaudouin/No-More-Agents-Dot-MD/blob/main/skill/context-engine/references/schema.md",
   giscus: {
     repo: "TheophileBaudouin/awesome-No-More-Agents-Dot-MD",
-    // TODO: fill in repoId / category / categoryId from https://giscus.app
-    // once Discussions are enabled on the repository and the giscus app is
-    // installed. Comments stay hidden (placeholder shown) until then.
-    repoId: "",
-    category: "",
-    categoryId: "",
+    repoId: "R_kgDOT4o0Zg",
+    category: "Announcements",
+    categoryId: "DIC_kwDOT4o0Zs4DDYno",
     mapping: "pathname",
+    strict: "1",
+    inputPosition: "top",
     theme: "preferred_color_scheme",
     lang: "en",
   },
