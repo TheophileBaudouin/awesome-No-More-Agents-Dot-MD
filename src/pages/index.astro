@@ -5,6 +5,8 @@ import { getCollection } from "astro:content";
 import { siteConfig } from "../site-config";
 import { CATEGORIES } from "../registry";
 
+const base = import.meta.env.BASE_URL;
+
 const entries = await getCollection("registry");
 
 const cards = entries.map((e) => {
@@ -42,7 +44,7 @@ const countByCategory = (category: string) =>
         Let&apos;s build a better context and more robust agents — together.
       </p>
       <div class="hero-actions">
-        <a class="btn" href={`${siteConfig.repoUrl}/issues/new?template=submit`}>
+        <a class="btn btn-gradient" href={`${base}submit/`}>
           Submit a context file
         </a>
         <a
@@ -112,6 +114,12 @@ const countByCategory = (category: string) =>
         for (const c of chips) c.classList.toggle("active", c === chip);
         activeCategory = chip.dataset.category;
         apply();
+      });
+    }
+    apply();
+  </script>
+</BaseLayout>
+ly();
       });
     }
     apply();

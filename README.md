@@ -16,10 +16,10 @@ publish one via a pull request, and the site is generated automatically from
 
 - **Submissions live in `registry/`** — one directory per context file:
   `registry/<name>/context.md` + `registry/<name>/metadata.yml`.
-- **Submitting is a web form** — fill the
-  [“Submit a context file” issue form](https://github.com/TheophileBaudouin/awesome-No-More-Agents-Dot-MD/issues/new?template=submit)
-  and a bot opens the validated pull request for you. No fork or clone
-  needed.
+- **Submitting is a web form** — start at the
+  [Submit page](https://theophilebaudouin.github.io/awesome-No-More-Agents-Dot-MD/submit/):
+  4 short steps, then a bot opens the validated pull request for you. No
+  fork or clone needed.
 - **Every pull request is validated automatically** (see
   [`.github/workflows/validate.yml`](.github/workflows/validate.yml)) against
   the schema used by the extension, before it can be merged.

@@ -1,0 +1,54 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { siteConfig } from "../site-config";
+
+const base = import.meta.env.BASE_URL;
+const formUrl = `${siteConfig.repoUrl}/issues/new?template=submit`;
+---
+
+<BaseLayout
+  title="Submit a context file"
+  description="How to share a Pi context file with the community registry."
+>
+  <section class="container submit-page">
+    <nav class="breadcrumb">
+      <a href={base}>Registry</a>
+      <span>/</span>
+      <span>Submit</span>
+    </nav>
+
+    <h1>Submit a context file</h1>
+    <p class="lead">
+      Sharing a <code>.pi/context/</code> file takes 4 steps. No Git, no
+      forks — a bot opens the pull request for you.
+    </p>
+
+    <ol class="steps">
+      <li>
+        <strong>Open the form</strong> — the button below, one click.
+      </li>
+      <li>
+        <strong>Name your file</strong> — kebab-case, e.g.
+        <code>conventional-commits</code>. Pick a category.
+      </li>
+      <li>
+        <strong>Paste your file</strong> — the whole thing, frontmatter
+        included.
+      </li>
+      <li>
+        <strong>Submit</strong> — a bot validates it, opens a pull request, a
+        maintainer merges. Done.
+      </li>
+    </ol>
+
+    <div class="submit-cta">
+      <a class="btn btn-gradient" href={formUrl}>Open the form</a>
+      <a
+        class="btn btn-outline"
+        href={`${siteConfig.repoUrl}/blob/main/CONTRIBUTING.md`}
+      >
+        Full guide
+      </a>
+    </div>
+  </section>
+</BaseLayout>
