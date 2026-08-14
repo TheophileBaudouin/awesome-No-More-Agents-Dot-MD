@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.astro/
+*.log
+.DS_Store
+
+# Local design document (French original, not part of the repo)
+/Rapport *.md

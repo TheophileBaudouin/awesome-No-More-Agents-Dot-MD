@@ -1,0 +1,118 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import RuleCard from "../components/RuleCard.astro";
+import { getCollection } from "astro:content";
+import { siteConfig } from "../site-config";
+import { CATEGORIES } from "../registry";
+
+const entries = await getCollection("registry");
+
+const cards = entries.map((e) => {
+  const rule = e.data.rule;
+  const metadata = e.data.metadata;
+  return {
+    slug: e.id,
+    name: rule.name,
+    description: rule.description,
+    category: metadata.category,
+    author: metadata.author,
+    events: rule.events,
+    action: String(rule.action.type),
+    searchText: [
+      rule.name,
+      rule.description,
+      ...metadata.tags,
+      metadata.author,
+      metadata.category,
+    ]
+      .join(" ")
+      .toLowerCase(),
+  };
+});
+
+const countByCategory = (category: string) =>
+  cards.filter((c) => c.category === category).length;
+---
+
+<BaseLayout>
+  <section class="hero">
+    <div class="container">
+      <h1>Pi context files, shared by the community</h1>
+      <p>
+        Declarative, unit-sized context rules for{" "}
+        <a href={siteConfig.extensionUrl}>No More Agents .MD</a>. Drop any file
+        into <code>.pi/context/</code> and it activates only when relevant.
+      </p>
+      <div class="hero-actions">
+        <a class="btn" href={`${siteConfig.repoUrl}/blob/main/CONTRIBUTING.md`}>
+          Submit a context file
+        </a>
+        <a class="btn btn-outline" href={siteConfig.repoUrl}>
+          View the registry
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="container">
+    <div class="toolbar">
+      <input
+        id="search"
+        type="search"
+        placeholder="Search by name, description, tag, author…"
+        autocomplete="off"
+      />
+      <div class="chips" id="chips">
+        <button class="chip active" data-category="all" type="button">
+          All <span>({cards.length})</span>
+        </button>
+        {CATEGORIES.map((c) => (
+          <button class="chip" data-category={c} type="button">
+            {c} <span>({countByCategory(c)})</span>
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <p id="count" class="count"></p>
+
+    <div class="grid" id="grid">
+      {cards.map((c) => (
+        <RuleCard {...c} />
+      ))}
+    </div>
+  </section>
+
+  <script is:inline>
+    const search = document.getElementById("search");
+    const chips = Array.from(document.querySelectorAll(".chip"));
+    const cards = Array.from(document.querySelectorAll(".rule-card"));
+    const count = document.getElementById("count");
+    let activeCategory = "all";
+
+    function apply() {
+      const q = (search.value || "").toLowerCase().trim();
+      let visible = 0;
+      for (const card of cards) {
+        const matchesSearch =
+          !q || card.dataset.search.includes(q);
+        const matchesCategory =
+          activeCategory === "all" || card.dataset.category === activeCategory;
+        const show = matchesSearch && matchesCategory;
+        card.hidden = !show;
+        if (show) visible++;
+      }
+      count.textContent = `${visible} of ${cards.length} context files`;
+    }
+
+    search.addEventListener("input", apply);
+    for (const chip of chips) {
+      chip.addEventListener("click", () => {
+        for (const c of chips) c.classList.toggle("active", c === chip);
+        activeCategory = chip.dataset.category;
+        apply();
+      });
+    }
+    apply();
+  </script>
+</BaseLayout>

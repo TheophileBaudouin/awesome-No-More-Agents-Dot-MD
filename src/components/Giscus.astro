@@ -1,0 +1,39 @@
+---
+import { siteConfig } from "../site-config";
+
+const g = siteConfig.giscus;
+const enabled = Boolean(g.repoId && g.categoryId && g.category);
+---
+
+{
+  enabled ? (
+    <div class="giscus">
+      <script
+        is:inline
+        src="https://giscus.app/client.js"
+        data-repo={g.repo}
+        data-repo-id={g.repoId}
+        data-category={g.category}
+        data-category-id={g.categoryId}
+        data-mapping={g.mapping}
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme={g.theme}
+        data-lang={g.lang}
+        crossorigin="anonymous"
+        async
+      />
+    </div>
+  ) : (
+    <p class="giscus-placeholder">
+      Comments are powered by{" "}
+      <a href="https://giscus.app/" rel="noopener noreferrer">
+        giscus
+      </a>{" "}
+      (GitHub Discussions) and will appear here once the repository is
+      configured.
+    </p>
+  )
+}

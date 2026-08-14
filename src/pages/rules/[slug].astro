@@ -1,0 +1,110 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Giscus from "../../components/Giscus.astro";
+import { getCollection, render } from "astro:content";
+import type { CollectionEntry } from "astro:content";
+import { siteConfig } from "../../site-config";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("registry");
+  return entries.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+interface Props {
+  entry: CollectionEntry<"registry">;
+}
+
+const { entry } = Astro.props;
+const { rule, metadata } = entry.data;
+const { Content } = await render(entry);
+
+const blobUrl = `${siteConfig.repoUrl}/blob/main/registry/${entry.id}/context.md`;
+const rawUrl = `${siteConfig.rawUrl}/registry/${entry.id}/context.md`;
+const priorityLabel = ["low", "normal", "high"][rule.priority - 1] ?? "normal";
+const base = import.meta.env.BASE_URL;
+---
+
+<BaseLayout title={rule.name} description={rule.description}>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href={base}>Registry</a>
+      <span>/</span>
+      <span>{rule.name}</span>
+    </nav>
+
+    <header class="rule-header">
+      <h1>{rule.name}</h1>
+      {rule.description && <p class="lead">{rule.description}</p>}
+      <div class="badges">
+        <span class="badge">{metadata.category}</span>
+        {metadata.tags.map((t) => (
+          <span class="badge badge-muted">{t}</span>
+        ))}
+      </div>
+    </header>
+
+    <dl class="meta-grid">
+      <div>
+        <dt>Author</dt>
+        <dd>@{metadata.author}</dd>
+      </div>
+      <div>
+        <dt>Events</dt>
+        <dd>{rule.events.join(", ")}</dd>
+      </div>
+      <div>
+        <dt>Action</dt>
+        <dd class="mono">{String(rule.action.type)}</dd>
+      </div>
+      <div>
+        <dt>Priority</dt>
+        <dd>{priorityLabel}</dd>
+      </div>
+      {metadata.minPiVersion && (
+        <div>
+          <dt>Min Pi version</dt>
+          <dd class="mono">{metadata.minPiVersion}</dd>
+        </div>
+      )}
+      {metadata.repo && (
+        <div>
+          <dt>Source</dt>
+          <dd>
+            <a href={metadata.repo} rel="noopener noreferrer">
+              {metadata.repo.replace(/^https?:\/\//, "")}
+            </a>
+          </dd>
+        </div>
+      )}
+    </dl>
+
+    <div class="actions">
+      <a class="btn" href={rawUrl}>
+        Download context.md
+      </a>
+      <a class="btn btn-outline" href={blobUrl}>
+        View on GitHub
+      </a>
+    </div>
+
+    {rule.match && (
+      <details class="match">
+        <summary>Match condition</summary>
+        <pre><code>{JSON.stringify(rule.match, null, 2)}</code></pre>
+      </details>
+    )}
+
+    <article class="prose">
+      <h2>Context</h2>
+      <Content />
+    </article>
+
+    <section class="comments">
+      <h2>Comments</h2>
+      <Giscus />
+    </section>
+  </div>
+</BaseLayout>

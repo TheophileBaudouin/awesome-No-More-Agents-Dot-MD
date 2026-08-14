@@ -1,0 +1,22 @@
+{
+  "name": "awesome-no-more-agents-dot-md",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Community registry of Pi context files, built with Astro and deployed to GitHub Pages.",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "validate": "tsx scripts/validate.ts"
+  },
+  "dependencies": {
+    "astro": "^7.2.2",
+    "yaml": "^2.9.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.23.12"
+  }
+}
