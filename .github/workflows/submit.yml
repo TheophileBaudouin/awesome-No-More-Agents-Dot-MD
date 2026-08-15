@@ -48,16 +48,25 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "$EMAIL"
           BRANCH="submission/$NAME-$ISSUE"
-          # Idempotent: a labeled/reopened re-trigger must not fail on push.
-          if git ls-remote --exit-code --heads origin "$BRANCH" \
-            >/dev/null 2>&1; then
-            echo "Branch $BRANCH already exists, PR already proposed."
+          # Idempotent on re-triggers (labeled/reopened): if a PR already
+          # exists for this branch, do nothing. Otherwise reuse an existing
+          # branch (e.g. one pushed by an earlier run whose PR creation was
+          # interrupted) and just create the PR.
+          if [ -n "$(gh pr list --head "$BRANCH" --state open \
+            --json number -q '.[0].number')" ]; then
+            echo "PR for $BRANCH already exists."
             exit 0
           fi
-          git checkout -b "$BRANCH"
-          git add registry/
-          git commit -m "Add context file: $NAME"
-          git push -u origin "$BRANCH"
+          if git ls-remote --exit-code --heads origin "$BRANCH" \
+            >/dev/null 2>&1; then
+            git fetch origin "$BRANCH"
+            git checkout "$BRANCH"
+          else
+            git checkout -b "$BRANCH"
+            git add registry/
+            git commit -m "Add context file: $NAME"
+            git push -u origin "$BRANCH"
+          fi
           gh pr create --base main \
             --title "Add context file: $NAME" \
             --body "Closes #$ISSUE. Validated by the submission workflow."
