@@ -83,6 +83,19 @@ body {
 	height: 3.5rem;
 }
 
+@media (max-width: 480px) {
+	.site-header .container {
+		flex-wrap: wrap;
+		height: auto;
+		padding: 0.5rem 1rem;
+		gap: 0.1rem 1rem;
+	}
+
+	.site-title small {
+		display: none;
+	}
+}
+
 .site-title {
 	display: flex;
 	align-items: baseline;
@@ -649,6 +662,8 @@ code {
 
 .match pre {
 	margin: 0.75rem 0 0;
+	overflow-x: auto;
+	max-width: 100%;
 }
 
 /* ---------- Prose (rendered context markdown) ---------- */
