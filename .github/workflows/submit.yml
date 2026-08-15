@@ -8,7 +8,9 @@ name: Submission bot
 
 on:
   issues:
-    types: [opened]
+    # Listen to opened + labeled + reopened to be tolerant if the label is
+    # added later, or if the issue is reopened.
+    types: [opened, labeled, reopened]
 
 permissions:
   contents: write
@@ -17,7 +19,11 @@ permissions:
 
 jobs:
   create-pull-request:
-    if: contains(github.event.issue.labels.*.name, 'submission')
+    # Run when the issue has the 'submission' label OR when the title matches
+    # the template prefix (fallback if the UI did not apply the label).
+    if: |
+      contains(github.event.issue.labels.*.name, 'submission') ||
+      startsWith(github.event.issue.title, 'New context file:')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -42,6 +48,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "$EMAIL"
           BRANCH="submission/$NAME-$ISSUE"
+          # Idempotent: a labeled/reopened re-trigger must not fail on push.
+          if git ls-remote --exit-code --heads origin "$BRANCH" \
+            >/dev/null 2>&1; then
+            echo "Branch $BRANCH already exists, PR already proposed."
+            exit 0
+          fi
           git checkout -b "$BRANCH"
           git add registry/
           git commit -m "Add context file: $NAME"

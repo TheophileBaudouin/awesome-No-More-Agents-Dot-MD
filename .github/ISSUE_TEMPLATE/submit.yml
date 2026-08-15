@@ -14,6 +14,9 @@ body:
 
         New to context files? Read the
         [contribution guide](CONTRIBUTING.md) first.
+
+        NOTE: This template automatically applies the `submission` label when
+        you create the issue, so you don't need to add any label yourself.
   - type: input
     id: name
     attributes:
