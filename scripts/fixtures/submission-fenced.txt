@@ -1,0 +1,140 @@
+### Directory name
+
+assistant-ui
+
+### Short description
+
+Use assistant-ui components for UI design
+
+### Author (GitHub handle)
+
+@TheophileBaudouin
+
+### Category
+
+ui
+
+### Tags (comma-separated, optional)
+
+UI, UX, interface, components, react, vite
+
+### Source repository (optional)
+
+_No response_
+
+### Minimum Pi version (optional)
+
+_No response_
+
+### License agreement
+
+- [x] I agree to publish my context file under the MIT license.
+
+### The context file
+
+```markdown
+---
+name: assistant-ui
+description: Inject assistant-ui component guidelines when the prompt is about UI, components, or interface
+events: [before_agent_start]
+match:
+  input:
+    regex:
+      - '\b(ui|ux|gui)\b'
+      - '\binterface(s)?\b'
+      - '\bcomposant(s)?\b'
+      - '\bcomponent(s)?\b'
+      - '\bgraphique(s)?\b'
+      - '\b(écran|ecran|screen|window)s?\b'
+      - '\bwidget(s)?\b'
+      - '\blayout(s)?\b'
+      - '\b(button|bouton)s?\b'
+      - '\binput(s)?\b'
+      - '\bform(ulaire)?s?\b'
+      - '\bfrontend\b'
+      - '\bnavbar\b'
+      - '\b(sidebar|header|footer)s?\b'
+      - '\b(modal|dialog|popover|popup)s?\b'
+      - '\b(toolbar|dropdown|menu)s?\b'
+      - '\b(card|panel|table|list|icon|avatar|chip|tab|badge|accordion|tooltip|scrollbar)s?\b'
+      - '\b(style|styling|theme|css|tailwind|shadcn|radix|color|colour|font|spacing|responsive|appearance|display|visual)s?\b'
+      - '\brender(ing|s)?\b'
+      - '\b(chat|thread|message|composer|attachment|streaming|assistant|react|react-native|primitive|toolkit)s?\b'
+      - '\b(actionbar|branchpicker|chainofthought|selectiontoolbar|suggestion|toolfallback|toolgroup|assistantmodal|threadlist|assistantmodal|dotmatrix|follow-up|directive-text|streamdown|syntax|highlight|mermaid|diff-viewer|quote|reasoning|model-selector|number-roll|part-grouping|context-display|heat-graph)\b'
+      - '\b(devtools|runtime|mcp|langgraph|langchain|ai-sdk|vercel)\b'
+action: {type: inject}
+---
+
+Step 1: Read the docs
+
+Read https://assistant-ui.com/llms-full.txt — the full reference in one
+file. Append ".md" to any docs URL for raw markdown
+(e.g. /docs/installation.md).
+
+Step 2: Ask the user
+
+Ask (a) fresh project vs (b) integrate into an existing project, and which
+runtime: default (AI SDK + OpenAI), LangGraph, Assistant Cloud, MCP, or a
+custom backend (Assistant Transport / AG-UI / A2A / Google ADK).
+
+Step 3: Create or integrate
+
+You are in a non-interactive agent shell — do NOT omit the flags below.
+
+If (a) fresh project:
+Run: npx assistant-ui@latest create <app-name> -t <template>
+
+Templates: default (unsure), minimal, cloud, cloud-clerk, langgraph, mcp.
+For custom backends without a template, swap -t for -e:
+AG-UI → `-e with-ag-ui`, Google ADK → `-e with-google-adk`,
+Assistant Transport → `-e with-assistant-transport`.
+A2A: use `-t minimal`, then install @assistant-ui/react-a2a manually.
+<app-name> and -t/-e are required.
+
+If (b) existing project:
+Detect the framework first. init ONLY supports Next.js App Router (it
+scaffolds app/assistant.tsx + app/api/chat/route.ts).
+
+- Vite / React Router v7 / TanStack Start / Expo → init does NOT work.
+  Prefer starting fresh with `create <name> -e with-react-router` /
+  `with-tanstack` / `with-expo` and migrating code in. In-place only
+  if you must: set components.json registries to
+  `"@assistant-ui": "https://r.assistant-ui.com/styles/{style}/{name}.json"`
+  (base- styles get Base UI components; others get Radix; plain
+  `https://r.assistant-ui.com/{name}.json` is the Radix-only fallback),
+  then `npx shadcn@latest add @assistant-ui/thread`, install the provider
+  SDK, and wire your own server for the chat endpoint (Vite/Expo do not
+  bundle one). See /docs/installation.md Manual Setup.
+- Next.js App Router → confirm package manager, Tailwind (v3 or v4), and
+  env var location, then run:
+
+  npx assistant-ui@latest init --yes
+
+--yes is required. init scaffolds:
+- components/assistant-ui/thread.tsx (Thread UI)
+- app/assistant.tsx (exports <Assistant />, already wraps Thread in
+  AssistantRuntimeProvider with runtime + transport)
+- app/api/chat/route.ts (OpenAI backend)
+
+Dependencies are installed automatically. If components.json already
+exists, init aborts — use `add <name>` instead.
+
+After create OR init:
+- Put the provider key in .env.local (OPENAI_API_KEY / ANTHROPIC_API_KEY …).
+- Non-OpenAI: swap the model in app/api/chat/route.ts and install that
+  provider's @ai-sdk/* package.
+- Render <Assistant /> (from `@/app/assistant`) in the root page.
+  Do NOT rebuild the provider — assistant.tsx already does it.
+- More components: `npx assistant-ui@latest add <name>`
+  (thread-list, assistant-modal, attachment, …).
+
+Step 4: Verify
+
+Start the dev server and send a test message. Success = the reply streams
+token-by-token in the Thread. If it fails, diagnose:
+- 401 / missing key → .env.local not loaded; restart the dev server
+- 500 on /api/chat → route file provider mismatch
+- Styles missing → Tailwind / globals.css not wired
+
+Stuck on anything else? Report the exact error to the user — do not loop.
+```

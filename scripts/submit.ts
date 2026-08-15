@@ -11,11 +11,12 @@
  *   - Failure: writes the error list to `.submission.md`, prints it, exits 1.
  *
  * The bot is lenient about the submission process and strict about the file:
- * small mistakes are fixed automatically (BOM, leading blank lines, a `@`
- * before the author, a URL without a scheme, a missing `description`), so it
- * never blocks on something trivial. It only rejects a submission when the
- * context file itself would not load with the extension — with an error that
- * says exactly what to fix.
+ * small mistakes are fixed automatically (a BOM, leading blank lines, a
+ * `_No response_` sentinel for empty optional fields, a code fence around
+ * the pasted file, a `@` before the author, a URL without a scheme, a
+ * missing `description`), so it never blocks on something trivial. It only
+ * rejects a submission when the context file itself would not load with the
+ * extension — with an error that says exactly what to fix.
  *
  * Overridable for local testing:
  *   REGISTRY_DIR  registry root to read/write (default "registry")
@@ -28,6 +29,8 @@
  *   ISSUE_BODY="$(cat scripts/fixtures/submission-invalid.txt)" \
  *     REGISTRY_DIR=/tmp/reg npx tsx scripts/submit.ts          # exits 1
  *   ISSUE_BODY="$(cat scripts/fixtures/submission-headings.txt)" \
+ *     REGISTRY_DIR=/tmp/reg npx tsx scripts/submit.ts          # prints OK
+ *   ISSUE_BODY="$(cat scripts/fixtures/submission-fenced.txt)" \
  *     REGISTRY_DIR=/tmp/reg npx tsx scripts/submit.ts          # prints OK
  */
 
@@ -74,16 +77,17 @@ const repo = normalizeRepo(rawRepo, errors);
 const content = normalizeContent(rawContent, description, errors);
 if (errors.length > 0) fail("please fix these issues", errors);
 
-const tags = rawTags
+const tags = blank(rawTags)
 	.split(",")
 	.map((t) => t.trim())
 	.filter(Boolean);
+const cleanPiVersion = blank(piVersion);
 const metadataYaml = stringify({
 	author,
 	category,
 	...(tags.length ? { tags } : {}),
 	...(repo ? { repo } : {}),
-	...(piVersion ? { min_pi_version: piVersion } : {}),
+	...(cleanPiVersion ? { min_pi_version: cleanPiVersion } : {}),
 });
 
 const submission = { content, metadataYaml };
@@ -151,10 +155,16 @@ function extractContent(body: string): string {
 /* Tolerant normalization                                              */
 /* ------------------------------------------------------------------ */
 
+/** GitHub fills an empty optional form field with `_No response_`. */
+function blank(value: string): string {
+	return /^_no response_$/i.test(value.trim()) ? "" : value;
+}
+
 /**
  * Make the pasted file installable as-is: drop a UTF-8 BOM, unify line
- * endings, and remove leading blank lines/whitespace so the frontmatter
- * starts at byte 0 — exactly what the extension requires.
+ * endings, remove leading blank lines/whitespace, and strip a wrapping
+ * code fence (` ``` ` or ` ```markdown `) so the frontmatter starts at
+ * byte 0 — exactly what the extension requires.
  */
 function normalizeContent(
 	raw: string,
@@ -163,6 +173,11 @@ function normalizeContent(
 ): string {
 	let text = raw.replace(/^\uFEFF/, "").replace(/\r\n/g, "\n");
 	text = text.replace(/^\s+/, "");
+	const opener = text.match(/^```[A-Za-z0-9._-]*\s*$/m);
+	if (opener) {
+		text = text.slice(opener[0].length).replace(/^\s+/, "");
+		text = text.replace(/\n```\s*$/, "").trimEnd() + "\n";
+	}
 	if (!text.startsWith("---")) {
 		errors.push(
 			"the context file must start with `---` on the very first line (the YAML frontmatter block)",
@@ -184,8 +199,9 @@ function normalizeContent(
 		return text;
 	}
 	const frontmatter = ensureDescription(lines.slice(1, close), description);
-	return ["---", ...frontmatter, ...lines.slice(close)].join("\n").trimEnd() +
-		"\n";
+	return (
+		["---", ...frontmatter, ...lines.slice(close)].join("\n").trimEnd() + "\n"
+	);
 }
 
 /**
@@ -193,11 +209,16 @@ function normalizeContent(
  * registry entry shows up nicely on the site. Uses JSON quoting, which is
  * always a valid single-line YAML scalar.
  */
-function ensureDescription(frontmatter: string[], description: string): string[] {
+function ensureDescription(
+	frontmatter: string[],
+	description: string,
+): string[] {
 	const line = `description: ${JSON.stringify(description)}`;
 	const idx = frontmatter.findIndex((l) => /^description\s*:/.test(l));
 	if (idx === -1) return [line, ...frontmatter];
-	const value = frontmatter[idx].slice(frontmatter[idx].indexOf(":") + 1).trim();
+	const value = frontmatter[idx]
+		.slice(frontmatter[idx].indexOf(":") + 1)
+		.trim();
 	if (value === "" || value === '""' || value === "''") {
 		const out = [...frontmatter];
 		out[idx] = line;
@@ -208,7 +229,7 @@ function ensureDescription(frontmatter: string[], description: string): string[]
 
 /** Add `https://` when the user forgot the scheme; otherwise validate. */
 function normalizeRepo(raw: string, errors: string[]): string {
-	const t = raw.trim();
+	const t = blank(raw).trim();
 	if (!t) return "";
 	const candidate = /^https?:\/\//i.test(t) ? t : `https://${t}`;
 	try {
@@ -234,7 +255,10 @@ function writeSubmission(
 	const targetDir = path.join(rootDir, name);
 	fs.mkdirSync(targetDir, { recursive: true });
 	fs.writeFileSync(path.join(targetDir, "context.md"), submission.content);
-	fs.writeFileSync(path.join(targetDir, "metadata.yml"), submission.metadataYaml);
+	fs.writeFileSync(
+		path.join(targetDir, "metadata.yml"),
+		submission.metadataYaml,
+	);
 }
 
 /** Validate the whole registry — same check as CI and the site build. */
