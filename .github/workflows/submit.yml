@@ -60,7 +60,10 @@ jobs:
           if git ls-remote --exit-code --heads origin "$BRANCH" \
             >/dev/null 2>&1; then
             git fetch origin "$BRANCH"
-            git checkout "$BRANCH"
+            # The convert step re-wrote registry/ files into the working
+            # tree (untracked); the branch already contains the same
+            # content, so force the checkout.
+            git checkout -f "$BRANCH"
           else
             git checkout -b "$BRANCH"
             git add registry/
