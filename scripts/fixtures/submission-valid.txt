@@ -2,6 +2,10 @@
 
 commit-style
 
+### Short description
+
+Enforce the Conventional Commits format.
+
 ### Author (GitHub handle)
 
 octocat
@@ -22,11 +26,14 @@ https://github.com/octocat/my-dotfiles
 
 0.1.0
 
+### License agreement
+
+- [x] I agree to publish my context file under the MIT license.
+
 ### The context file
 
 ---
 name: commit-style
-description: Enforce the Conventional Commits format.
 events:
   - before_agent_start
 action:

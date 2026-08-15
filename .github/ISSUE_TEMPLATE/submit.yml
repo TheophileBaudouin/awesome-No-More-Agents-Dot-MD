@@ -1,19 +1,21 @@
 name: Submit a context file
 description: >-
-  Share a Pi context file with the community registry, a bot validates it
-  and opens a pull request for you.
+  Share a Pi context file with the community registry. A bot validates it,
+  opens a pull request for you, and a maintainer merges it after review.
 title: "New context file: "
 labels: ["submission"]
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for sharing! Fill in the form below, no need to fork or clone.
-        A bot will validate your submission and open a pull request that a
-        maintainer will review and merge.
+        Thanks for sharing! Fill in the form below — every field the bot needs
+        is required, so it can process your submission in one pass. No need to
+        fork or clone.
 
         New to context files? Read the
-        [contribution guide](CONTRIBUTING.md) first.
+        [contribution guide](CONTRIBUTING.md) and the
+        [frontmatter schema](https://github.com/TheophileBaudouin/No-More-Agents-Dot-MD/blob/main/skill/context-engine/references/schema.md)
+        first.
 
         NOTE: This template automatically applies the `submission` label when
         you create the issue, so you don't need to add any label yourself.
@@ -22,16 +24,29 @@ body:
     attributes:
       label: Directory name
       description: >-
-        Lowercase kebab-case, e.g. `conventional-commits`. Must exactly match
-        the `name` in your file's frontmatter.
+        Lowercase kebab-case (letters, digits, single hyphens), e.g.
+        `conventional-commits`. Must exactly match the `name` in your file's
+        frontmatter.
       placeholder: my-context-rule
+    validations:
+      required: true
+  - type: input
+    id: description
+    attributes:
+      label: Short description
+      description: >-
+        One sentence telling someone what this file does. The bot adds it to
+        your frontmatter as `description` if it is not there yet.
+      placeholder: Enforce the Conventional Commits format.
     validations:
       required: true
   - type: input
     id: author
     attributes:
       label: Author (GitHub handle)
-      description: Your GitHub username, without the `@`.
+      description: >-
+        Your GitHub username. The `@` is optional — the bot strips it if you
+        include it.
       placeholder: octocat
     validations:
       required: true
@@ -39,7 +54,7 @@ body:
     id: category
     attributes:
       label: Category
-      description: Pick the best match.
+      description: Pick the best match. Used to filter the registry on the site.
       options:
         - workflow
         - security
@@ -59,7 +74,9 @@ body:
     id: repo
     attributes:
       label: Source repository (optional)
-      description: URL of the repository where this context file lives.
+      description: >-
+        URL where this context file lives. `https://` is added for you if you
+        forget it.
       placeholder: https://github.com/octocat/my-dotfiles
   - type: input
     id: pi_version
@@ -67,11 +84,26 @@ body:
       label: Minimum Pi version (optional)
       description: e.g. `0.1.0`
       placeholder: "0.1.0"
+  - type: checkboxes
+    id: agreement
+    attributes:
+      label: License agreement
+      description: >-
+        By publishing here your file is licensed under the MIT license, like
+        the rest of the repository. You must agree to continue.
+      options:
+        - label: I agree to publish my context file under the MIT license.
+          required: true
   - type: textarea
     id: content
     attributes:
       label: The context file
-      description: Paste your full context file here, frontmatter included.
+      description: >-
+        The complete file, frontmatter included. It must start with `---` on
+        the very first line. The bot fixes small mistakes for you (BOM,
+        leading blank lines) and validates the frontmatter strictly: a file
+        that would not load in the extension is rejected with an error that
+        says exactly what to fix.
       placeholder: |
         ---
         name: my-context-rule
@@ -79,6 +111,7 @@ body:
           - before_agent_start
         action:
           type: inject
+          once: true
         ---
         Instructions for the agent…
       render: markdown

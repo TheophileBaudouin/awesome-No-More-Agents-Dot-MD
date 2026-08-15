@@ -1,10 +1,10 @@
 ### Directory name
 
-my-invalid-rule
+heading-test
 
 ### Short description
 
-This one has a bad event.
+Body with markdown headings must be preserved.
 
 ### Author (GitHub handle)
 
@@ -27,9 +27,21 @@ workflow
 ### The context file
 
 ---
-name: my-invalid-rule
-events:
-  - this_event_does_not_exist
+name: heading-test
+description: Keep headings in the body.
+events: [before_agent_start]
 action:
   type: inject
 ---
+
+## Intro
+
+Some text before the heading.
+
+### Section one
+
+This line comes after a `###` heading and must not be lost.
+
+### Section two
+
+Also kept.

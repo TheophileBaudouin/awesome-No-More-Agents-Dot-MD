@@ -6,3 +6,4 @@ dist/
 
 # Local design document (French original, not part of the repo)
 /Rapport *.md
+.submission.md
