@@ -578,26 +578,10 @@ code {
 }
 
 /* Friendly "when / what happens" strip on the rule page. */
-.trigger-strip {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 0.5rem 1rem;
-	align-items: baseline;
-	margin-bottom: 1.5rem;
-	color: hsl(var(--muted-foreground));
-	font-size: 0.9rem;
-}
-
-.trigger-strip .trigger-events,
-.trigger-strip .trigger-action {
+.events-list {
 	display: inline-flex;
 	flex-wrap: wrap;
-	gap: 0.35rem;
-	align-items: center;
-}
-
-.trigger-strip .connector {
-	opacity: 0.6;
+	gap: 0.3rem;
 }
 
 .event-tag {
@@ -607,6 +591,7 @@ code {
 	border: 1px solid hsl(var(--border));
 	background: hsl(var(--muted));
 	font-size: 0.8rem;
+	overflow-wrap: anywhere;
 }
 
 .action-tag {
@@ -617,28 +602,65 @@ code {
 	color: hsl(var(--accent-foreground));
 	font-size: 0.8rem;
 	font-weight: 500;
+	overflow-wrap: anywhere;
 }
 
-/* Friendly match sentence (fallback: raw JSON in a disclosure). */
-.match-fact {
-	display: flex;
-	gap: 0.5rem;
-	align-items: baseline;
-	margin-bottom: 2rem;
-	padding: 0.75rem 1rem;
+/* "When it applies": the match condition reinterpreted as a sentence with
+ * keyword chips (raw JSON only as a fallback for unparseable shapes). */
+.when-box {
+	margin: 0 0 1.5rem;
+	padding: 1rem 1.25rem;
 	border: 1px solid hsl(var(--border));
 	border-radius: var(--radius);
+}
+
+.when-title {
+	margin: 0 0 0.5rem;
+	font-size: 0.75rem;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: hsl(var(--muted-foreground));
+}
+
+.when-sentence {
+	margin: 0;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 0.4rem 0.6rem;
+	font-size: 0.95rem;
+}
+
+.when-chips {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+}
+
+.when-chip {
+	display: inline-block;
+	padding: 0.15rem 0.55rem;
+	border-radius: 999px;
+	border: 1px solid hsl(var(--border));
 	background: hsl(var(--muted));
-	font-size: 0.9rem;
-}
-
-.match-fact strong {
-	font-weight: 600;
-	white-space: nowrap;
-}
-
-.match-fact .match-value {
+	font-size: 0.8rem;
 	overflow-wrap: anywhere;
+}
+
+.when-more {
+	margin: 0.6rem 0 0;
+	padding: 0;
+	background: none;
+	border: none;
+	color: hsl(var(--muted-foreground));
+	font-size: 0.8rem;
+	text-decoration: underline;
+	text-underline-offset: 2px;
+	cursor: pointer;
+}
+
+.when-more:hover {
+	color: hsl(var(--foreground));
 }
 
 .actions {

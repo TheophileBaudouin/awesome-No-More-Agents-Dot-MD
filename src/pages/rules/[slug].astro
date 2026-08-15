@@ -28,11 +28,46 @@ const priorityLabel = ["low", "normal", "high"][rule.priority - 1] ?? "normal";
 const base = import.meta.env.BASE_URL;
 
 const eventLabels = rule.events.map((e) => EVENT_LABELS[e] ?? e);
-const actionLabel = ACTION_LABELS[String(rule.action.type)] ?? String(rule.action.type);
+const actionLabel =
+	ACTION_LABELS[String(rule.action.type)] ?? String(rule.action.type);
 
-/** Reinterpret simple `{ <event>: { contains: [...] } }` / regex matches as
- * a sentence; return null when the shape is anything more complex. */
-function friendlyMatch(match: Record<string, unknown>): string | null {
+/** Turn one regex pattern from a match condition into human-friendly
+ * keyword chips: `\b(ui|ux|gui)\b` → ui, ux, gui; `\bform(ulaire)?s?\b` →
+ * form, formulaire; `\brender(ing|s)?\b` → render, rendering, renders;
+ * `\binterface(s)?\b` → interface. Anything that does not reduce to plain
+ * words is kept as-is. */
+function regexKeywords(pattern: string): string[] {
+	const clean = pattern.replace(/\(\?i\)/g, "").replace(/\\(?:b|B|w|W)/g, "");
+	// (a|b|c)s?  → a, b, c (plural covered by the base form)
+	let m = clean.match(/^\(([^()]+)\)s\?$/);
+	if (m) return m[1].split("|");
+	// (a|b|c)  → a, b, c
+	m = clean.match(/^\(([^()]+)\)$/);
+	if (m) return m[1].split("|");
+	// word(ing|s)?  → word, wording, renders (a pure (s)? is just a plural)
+	m = clean.match(/^([\p{L}\p{N}_-]+)\(([\p{L}\p{N}_|]+)\)\?$/u);
+	if (m) {
+		const base = m[1];
+		const suffixes = m[2].split("|");
+		return suffixes.length === 1 && suffixes[0] === "s"
+			? [base]
+			: [base, ...suffixes.map((s) => base + s)];
+	}
+	// word(ulaire)?s?  → word, wordulaire
+	m = clean.match(/^([\p{L}\p{N}_-]+)\(([\p{L}\p{N}_]+)\)\?s\?$/u);
+	if (m) return [m[1], m[1] + m[2]];
+	// bare word
+	if (/^[\p{L}\p{N}_-]+$/u.test(clean)) return [clean];
+	return [clean];
+}
+
+const PLAIN_WORD = /^[\p{L}\p{N}_-]+$/u;
+
+/** Reinterpret a match condition as a friendly lead sentence plus keyword
+ * chips; null when the shape is anything more complex. */
+function interpretMatch(
+	match: Record<string, unknown>,
+): { lead: string; chips: string[] } | null {
 	const keys = Object.keys(match);
 	if (keys.length !== 1) return null;
 	const cond = match[keys[0]];
@@ -40,15 +75,21 @@ function friendlyMatch(match: Record<string, unknown>): string | null {
 	const label = (EVENT_LABELS[keys[0]] ?? keys[0]).toLowerCase();
 	const contains = (cond as Record<string, unknown>).contains;
 	if (Array.isArray(contains) && contains.length > 0) {
-		return `Only when the ${label} contains: ${contains.map(String).join(", ")}`;
+		return { lead: `Only when the ${label} contains:`, chips: contains.map(String) };
 	}
 	const regex = (cond as Record<string, unknown>).regex;
 	if (Array.isArray(regex) && regex.length > 0) {
-		return `Only when the ${label} matches: ${regex.map(String).join(", ")}`;
+		const chips = [...new Set(regex.flatMap(regexKeywords))];
+		const plain = chips.every((c) => PLAIN_WORD.test(c));
+		return { lead: `Only when the ${label} ${plain ? "mentions" : "matches"}:`, chips };
 	}
 	return null;
 }
-const matchSentence = rule.match ? friendlyMatch(rule.match) : null;
+
+const when = rule.match ? interpretMatch(rule.match) : null;
+const CHIP_PREVIEW = 12;
+const previewChips = when ? when.chips.slice(0, CHIP_PREVIEW) : [];
+const extraChips = when ? when.chips.slice(CHIP_PREVIEW) : [];
 ---
 
 <BaseLayout title={rule.name} description={rule.description}>
@@ -70,23 +111,30 @@ const matchSentence = rule.match ? friendlyMatch(rule.match) : null;
       </div>
     </header>
 
-    <div class="trigger-strip">
-      <span class="trigger-events">
-        <span class="connector">Triggers on</span>
-        {eventLabels.map((l) => (
-          <span class="event-tag">{l}</span>
-        ))}
-      </span>
-      <span class="trigger-action">
-        <span class="connector">and reacts by</span>
-        <span class="action-tag">{actionLabel}</span>
-      </span>
-    </div>
-
     <dl class="meta-grid">
       <div>
         <dt>Author</dt>
         <dd>@{metadata.author}</dd>
+      </div>
+      <div>
+        <dt>Events</dt>
+        <dd>
+          <span class="events-list">
+            {eventLabels.map((l, i) => (
+              <span class="event-tag" title={rule.events[i]}>
+                {l}
+              </span>
+            ))}
+          </span>
+        </dd>
+      </div>
+      <div>
+        <dt>Action</dt>
+        <dd>
+          <span class="action-tag" title={String(rule.action.type)}>
+            {actionLabel}
+          </span>
+        </dd>
       </div>
       <div>
         <dt>Priority</dt>
@@ -110,6 +158,49 @@ const matchSentence = rule.match ? friendlyMatch(rule.match) : null;
       )}
     </dl>
 
+    {rule.match && (
+      <section class="when-box" aria-labelledby="when-title">
+        <h2 id="when-title" class="when-title">
+          When it applies
+        </h2>
+        {when ? (
+          <>
+            <p class="when-sentence">
+              {when.lead}
+              <span class="when-chips">
+                {previewChips.map((c) => (
+                  <span class="when-chip">{c}</span>
+                ))}
+                {extraChips.length > 0 && (
+                  <span id="when-extra" class="when-chips" hidden>
+                    {extraChips.map((c) => (
+                      <span class="when-chip">{c}</span>
+                    ))}
+                  </span>
+                )}
+              </span>
+            </p>
+            {extraChips.length > 0 && (
+              <button
+                id="when-more"
+                class="when-more"
+                type="button"
+                aria-expanded="false"
+                data-total={when.chips.length}
+              >
+                Show all {when.chips.length} keywords
+              </button>
+            )}
+          </>
+        ) : (
+          <details class="match">
+            <summary>View technical match condition</summary>
+            <pre><code>{JSON.stringify(rule.match, null, 2)}</code></pre>
+          </details>
+        )}
+      </section>
+    )}
+
     <div class="actions">
       <a class="btn" href={rawUrl}>
         Download context.md
@@ -118,20 +209,6 @@ const matchSentence = rule.match ? friendlyMatch(rule.match) : null;
         View on GitHub
       </a>
     </div>
-
-    {matchSentence ? (
-      <p class="match-fact">
-        <strong>When it applies</strong>
-        <span class="match-value">{matchSentence}</span>
-      </p>
-    ) : (
-      rule.match && (
-        <details class="match">
-          <summary>Match condition</summary>
-          <pre><code>{JSON.stringify(rule.match, null, 2)}</code></pre>
-        </details>
-      )
-    )}
 
     <article class="prose">
       <h2>Context</h2>
@@ -166,6 +243,17 @@ const matchSentence = rule.match ? friendlyMatch(rule.match) : null;
         const open = body.classList.toggle("is-expanded");
         toggle.setAttribute("aria-expanded", String(open));
         toggle.textContent = open ? "Show less" : "Show more";
+      });
+    }
+    const whenMore = document.getElementById("when-more");
+    if (whenMore) {
+      whenMore.addEventListener("click", () => {
+        const open = whenMore.getAttribute("aria-expanded") === "true";
+        document.getElementById("when-extra").hidden = open;
+        whenMore.setAttribute("aria-expanded", String(!open));
+        whenMore.textContent = open
+          ? `Show all ${whenMore.dataset.total} keywords`
+          : "Show fewer";
       });
     }
   </script>

@@ -22,7 +22,10 @@ assert.equal(e("```bash\necho <tag>\n```"), "```bash\necho <tag>\n```");
 assert.equal(e("> quoted <text>"), "> quoted &lt;text&gt;");
 
 // Fence toggle works across multiple lines, both backticks and tildes.
-assert.equal(e("a\n```\n<keep>\n```\nb <esc>"), "a\n```\n<keep>\n```\nb &lt;esc&gt;");
+assert.equal(
+	e("a\n```\n<keep>\n```\nb <esc>"),
+	"a\n```\n<keep>\n```\nb &lt;esc&gt;",
+);
 assert.equal(e("~~~\n<keep>\n~~~\n"), "~~~\n<keep>\n~~~\n");
 
 // Escaped entities are not double-escaped inside code.
