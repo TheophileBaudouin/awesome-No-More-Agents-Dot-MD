@@ -57,7 +57,30 @@ export const CATEGORIES = [
 	"other",
 ] as const;
 
-const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/;
+/** Human-friendly labels for events and actions (UI display only). */
+export const EVENT_LABELS: Record<string, string> = {
+	before_agent_start: "Before agent start",
+	tool_call: "Tool call",
+	tool_result: "Tool result",
+	input: "User input",
+	user_bash: "User bash",
+	session_before_switch: "Before session switch",
+	session_before_fork: "Before session fork",
+};
+
+export const ACTION_LABELS: Record<string, string> = {
+	inject: "Injects context",
+	confirm: "Asks to confirm",
+	block: "Blocks",
+	modify: "Modifies",
+	tools: "Adjusts tools",
+	notify: "Notifies",
+	transform: "Transforms",
+	handled: "Handles",
+	annotate: "Annotates",
+};
+
+export const FRONTMATTER_RE = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?/;
 
 /** Kebab-case: lowercase letters, digits and single hyphens. */
 const DIR_NAME_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
@@ -65,6 +88,71 @@ const DIR_NAME_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 export interface RuleAction {
 	type: string;
 	[key: string]: unknown;
+}
+
+/**
+ * Escape `<`, `>` and `&` that appear as raw HTML outside code spans and
+ * fenced code blocks. Context files are agent instructions that may contain
+ * literal angle brackets (`create <app-name> -t <template>`); passed through
+ * unescaped, the browser parses them as elements — `<template>` swallows the
+ * rest of the page — and they are a stored-XSS vector. Code spans and fences
+ * are left untouched because the markdown renderer already escapes those
+ * (escaping again would double-escape); blockquote markers (`>` at line
+ * start) are preserved.
+ */
+export function escapeBareHtml(md: string): string {
+	const escape = (s: string) =>
+		s.replace(/[&<>]/g, (c) =>
+			c === "&" ? "&amp;" : c === "<" ? "&lt;" : "&gt;",
+		);
+
+	const escapeInline = (line: string): string => {
+		// Keep blockquote markers (`> ` prefixes) unescaped.
+		let prefix = "";
+		let rest = line;
+		while (rest.startsWith(">")) {
+			prefix += ">";
+			if (rest[1] === " ") {
+				prefix += " ";
+				rest = rest.slice(2);
+			} else {
+				rest = rest.slice(1);
+			}
+		}
+		// Split on backtick runs; alternate text/code segments.
+		const parts = rest.split(/(`+)/);
+		let isCode = false;
+		let result = "";
+		for (const part of parts) {
+			if (part === "") continue;
+			if (/^`+$/.test(part)) {
+				isCode = !isCode;
+				result += part;
+			} else {
+				result += isCode ? part : escape(part);
+			}
+		}
+		return prefix + result;
+	};
+
+	const lines = md.split("\n");
+	const out: string[] = [];
+	let fence: string | null = null; // backtick or tilde while inside a fence
+	for (const line of lines) {
+		if (fence) {
+			out.push(line);
+			if (new RegExp(`^\\${fence}{3,}\\s*$`).test(line)) fence = null;
+			continue;
+		}
+		const open = line.match(/^(`{3,}|~{3,})/);
+		if (open) {
+			fence = open[1][0];
+			out.push(line);
+			continue;
+		}
+		out.push(escapeInline(line));
+	}
+	return out.join("\n");
 }
 
 export interface Rule {

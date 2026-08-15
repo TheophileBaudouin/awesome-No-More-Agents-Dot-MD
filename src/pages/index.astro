@@ -68,26 +68,39 @@ const countByCategory = (category: string) =>
         type="search"
         placeholder="Search by name, description, tag, author…"
         autocomplete="off"
+        aria-label="Search context files"
       />
-      <div class="chips" id="chips">
-        <button class="chip active" data-category="all" type="button">
-          All <span>({cards.length})</span>
-        </button>
-        {CATEGORIES.map((c) => (
-          <button class="chip" data-category={c} type="button">
-            {c} <span>({countByCategory(c)})</span>
+      <fieldset class="chips-fieldset">
+        <legend class="chips-legend">Filter by category</legend>
+        <div class="chips" id="chips">
+          <button
+            class="chip active"
+            data-category="all"
+            type="button"
+            aria-pressed="true"
+          >
+            All <span>({cards.length})</span>
           </button>
-        ))}
-      </div>
+          {CATEGORIES.map((c) => (
+            <button class="chip" data-category={c} type="button" aria-pressed="false">
+              {c} <span>({countByCategory(c)})</span>
+            </button>
+          ))}
+        </div>
+      </fieldset>
     </div>
 
-    <p id="count" class="count"></p>
+    <p id="count" class="count" aria-live="polite"></p>
 
     <div class="grid" id="grid">
       {cards.map((c) => (
         <RuleCard {...c} />
       ))}
     </div>
+
+    <p id="empty" class="empty-state" role="status">
+      No context files match your filters.
+    </p>
   </section>
 
   <script is:inline>
@@ -95,6 +108,7 @@ const countByCategory = (category: string) =>
     const chips = Array.from(document.querySelectorAll(".chip"));
     const cards = Array.from(document.querySelectorAll(".rule-card"));
     const count = document.getElementById("count");
+    const empty = document.getElementById("empty");
     let activeCategory = "all";
 
     function apply() {
@@ -110,20 +124,19 @@ const countByCategory = (category: string) =>
         if (show) visible++;
       }
       count.textContent = `${visible} of ${cards.length} context files`;
+      empty.classList.toggle("visible", visible === 0);
     }
 
     search.addEventListener("input", apply);
     for (const chip of chips) {
       chip.addEventListener("click", () => {
-        for (const c of chips) c.classList.toggle("active", c === chip);
+        for (const c of chips) {
+          const on = c === chip;
+          c.classList.toggle("active", on);
+          c.setAttribute("aria-pressed", String(on));
+        }
         activeCategory = chip.dataset.category;
         apply();
-      });
-    }
-    apply();
-  </script>
-</BaseLayout>
-ly();
       });
     }
     apply();

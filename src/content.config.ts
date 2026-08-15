@@ -3,7 +3,12 @@ import type { Loader } from "astro/loaders";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { pathToFileURL } from "node:url";
-import { loadRegistry, registryEntrySchema } from "./registry";
+import {
+  FRONTMATTER_RE,
+  escapeBareHtml,
+  loadRegistry,
+  registryEntrySchema,
+} from "./registry";
 
 /**
  * Loads every submission from `registry/` into the content layer.
@@ -23,10 +28,18 @@ const registryLoader = {
     }
 
     for (const entry of entries) {
-      const rendered = await renderMarkdown(
-        fs.readFileSync(entry.contextPath, "utf8"),
-        { fileURL: pathToFileURL(entry.contextPath) },
-      );
+      const raw = fs.readFileSync(entry.contextPath, "utf8");
+      // Render the body with bare angle brackets escaped: context files may
+      // contain literal `<app-name>` / `<template>` which the browser would
+      // parse as HTML (truncating the page, and a stored-XSS vector). The
+      // frontmatter is left untouched so the parsed YAML data is not mangled.
+      const fm = raw.match(FRONTMATTER_RE);
+      const markdown = fm
+        ? raw.slice(0, fm[0].length) + escapeBareHtml(raw.slice(fm[0].length))
+        : escapeBareHtml(raw);
+      const rendered = await renderMarkdown(markdown, {
+        fileURL: pathToFileURL(entry.contextPath),
+      });
       store.set({
         id: entry.id,
         data: { rule: entry.rule, metadata: entry.metadata },
