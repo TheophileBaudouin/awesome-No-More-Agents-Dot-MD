@@ -171,6 +171,20 @@ body {
 	flex-wrap: wrap;
 }
 
+/* Discreet monthly download stat under the hero tagline. */
+.hero-downloads {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	margin: 0 0 1.5rem;
+	color: hsl(var(--muted-foreground));
+	font-size: 0.8rem;
+}
+
+.hero-downloads svg {
+	flex-shrink: 0;
+}
+
 /* ---------- Buttons ---------- */
 
 .btn {
